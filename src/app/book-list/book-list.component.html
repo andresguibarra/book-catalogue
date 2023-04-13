@@ -1,0 +1,42 @@
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <span>Books list</span>
+    <span class="spacer"></span>
+    <button mat-raised-button color="accent" routerLink="/book/edit/new">Add book</button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<div class="container">
+  <mat-form-field appearance="fill">
+    <mat-label>Group by </mat-label>
+    <mat-select [(value)]="groupingCriteria" (selectionChange)="onGroupingChange()">
+      <mat-option value="publicationYear">Publication year</mat-option>
+      <mat-option value="rating">Rating</mat-option>
+      <mat-option value="authors">Author</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div *ngFor="let group of groupedBooks" class="group">
+    <h2>{{ group.title }}</h2>
+    <mat-list>
+      <mat-list-item *ngFor="let book of group.books">
+        <div class="book-list-item">
+          <a [routerLink]="['/book', book.id]">{{ book.name }}</a>
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </div>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item [routerLink]="['/book/edit', book.id]">
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+          </button>
+          <button mat-menu-item (click)="deleteBook(book.id)">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
+      </mat-list-item>
+    </mat-list>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "book-catalogue-e54a2": {
+      "hosting": {
+        "book-catalogue": [
+          "book-catalogue-e54a2"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "book-catalogue-e54a2"
+  }
+}

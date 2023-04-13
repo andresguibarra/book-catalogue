@@ -1,0 +1,40 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.container {
+  margin: 16px;
+}
+
+.group {
+  background-color: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.group h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  text-align: left;
+  color: #4a4a4a;
+  font-weight: 500;
+}
+
+.group a {
+  color: #009688;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.group a:hover {
+  color: #00695c;
+}
+
+.book-list-item {
+  display: flex;
+  align-items: center;
+}
+
