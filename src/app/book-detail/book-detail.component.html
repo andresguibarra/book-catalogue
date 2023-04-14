@@ -1,1 +1,21 @@
-<p>book-detail works!</p>
+<mat-card *ngIf="book$ | async as book" class="book-detail">
+  <button mat-button routerLink="/" class="back-to-list">← Go back to the books list</button>
+  <mat-card-title class="title">
+    {{ book.name }}
+  </mat-card-title>
+  <mat-card-content>
+    <div *ngIf="book.publicationYear">
+      <strong>Publication year:</strong> {{ book.publicationYear }}
+    </div>
+    <div *ngIf="book.rating">
+      <strong>Rating:</strong> {{ book.rating }}
+    </div>
+    <div *ngIf="book.isbn">
+      <strong>ISBN:</strong> {{ book.isbn }}
+    </div>
+    <h3>Authors:</h3>
+    <mat-list>
+      <mat-list-item *ngFor="let author of book.authors">{{ author.fullName }}</mat-list-item>
+    </mat-list>
+  </mat-card-content>
+</mat-card>

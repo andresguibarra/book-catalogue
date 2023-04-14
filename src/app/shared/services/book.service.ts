@@ -36,7 +36,7 @@ export class BookService {
   getBooks(): Observable<Book[]> {
     return combineLatest([
       collectionData<Book>(this.booksCollection, { idField: 'id' }),
-      collectionData<Author>(this.authorsCollection, { idField: 'id' }),
+      this.getAuthors(),
     ]).pipe(
       map(([books, authors]) => {
         books.forEach((book) => this.setRelatedAuthors(book, authors));
@@ -47,8 +47,9 @@ export class BookService {
 
   setRelatedAuthors(book: Book, authors: Author[]) {
     const relatedAuthors = authors.filter((author) =>
-      book.authors.map((a) => a.id).includes(author.id)
+      book.authors.some(a => a as any === author.id)
     );
+    console.log('relatedAuthors',relatedAuthors)
     book.authors = relatedAuthors;
   }
 
@@ -58,7 +59,16 @@ export class BookService {
 
   getBook(id: string): Observable<Book> {
     const bookRef = doc<Book>(this.booksCollection, id);
-    return docData<Book>(bookRef);
+    return combineLatest([
+      docData<Book>(bookRef),
+      this.getAuthors(),
+    ]).pipe(
+      map(([book, authors]) => {
+        console.log('book authors', JSON.stringify(book.authors), 'authors', authors);
+        this.setRelatedAuthors(book, authors);
+        return book;
+      })
+    );
   }
 
   addBook(book: Book): Observable<DocumentReference<Book>> {

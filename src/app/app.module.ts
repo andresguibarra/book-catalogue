@@ -21,7 +21,9 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { FIREBASE_OPTIONS } from '@angular/fire/compat';
-
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatCardModule } from '@angular/material/card';
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,6 +40,9 @@ import { FIREBASE_OPTIONS } from '@angular/fire/compat';
     MatToolbarModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatAutocompleteModule,
+    MatChipsModule,
+    MatCardModule,
     MatListModule,
     MatIconModule,
     MatMenuModule,

@@ -1,15 +1,25 @@
 <div class="container" *ngIf="bookForm">
+  <h2>Edit</h2>
   <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
     <mat-form-field appearance="fill">
       <mat-label>Name</mat-label>
       <input matInput formControlName="name" required maxlength="255" />
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="fill" class="author-chips">
       <mat-label>Authors</mat-label>
-      <mat-select formControlName="authors" multiple required>
-        <mat-option *ngFor="let author of authors" [value]="author.id">{{ author.fullName }}</mat-option>
-      </mat-select>
+      <mat-chip-grid #chipGrid aria-label="Authors">
+        <mat-chip-row *ngFor="let author of bookForm.get('authors')?.value" [removable]="true" (removed)="removeAuthorFromBook(author)">
+          {{ author.fullName }}
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip-row>
+      </mat-chip-grid>
+      <input matInput [matChipInputFor]="chipGrid" [matAutocomplete]="auto" [formControl]="authorControl" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="addNewAuthorAndSelect(authorControl.value)" />
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addAuthorToBook($event.option.value)">
+        <mat-option *ngFor="let author of authors" [value]="author">
+          {{ author.fullName }}
+        </mat-option>
+      </mat-autocomplete>
     </mat-form-field>
 
     <mat-form-field appearance="fill">

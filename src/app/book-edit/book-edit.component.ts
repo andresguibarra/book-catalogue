@@ -1,9 +1,16 @@
+import { ENTER } from '@angular/cdk/keycodes';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Book } from '../shared/models/book.model';
 import { Author } from '../shared/models/author.model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BookService } from '../shared/services/book.service';
+import { AuthorService } from '../shared/services/authors.service';
 
 @Component({
   selector: 'app-book-edit',
@@ -11,17 +18,20 @@ import { BookService } from '../shared/services/book.service';
   styleUrls: ['./book-edit.component.scss'],
 })
 export class BookEditComponent {
+  separatorKeysCodes: number[] = [ENTER];
   bookForm: FormGroup;
   book: Book;
   isNewBook: boolean = false;
   bookId: string = '';
   authors: Author[] = [];
+  authorControl = new FormControl();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    private bookService: BookService
+    private bookService: BookService,
+    private authorService: AuthorService
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +55,7 @@ export class BookEditComponent {
 
     if (!this.isNewBook) {
       this.bookService.getBook(this.bookId).subscribe((book) => {
+        console.log(book);
         this.book = book;
         bookName = book.name;
         bookAuthors = book.authors;
@@ -54,7 +65,7 @@ export class BookEditComponent {
 
         this.bookForm.patchValue({
           name: bookName,
-          authors: bookAuthors.map((author) => author.id),
+          authors: bookAuthors,
           publicationYear: bookPublicationYear,
           rating: bookRating,
           isbn: bookIsbn,
@@ -74,12 +85,11 @@ export class BookEditComponent {
   onSubmit(): void {
     const newBook: Book = {
       name: this.bookForm.value['name'],
-      authors: this.bookForm.value['authors'],
+      authors: this.bookForm.value['authors'].map((a: Author) => a.id),
       publicationYear: this.bookForm.value['publicationYear'],
       rating: this.bookForm.value['rating'],
       isbn: this.bookForm.value['isbn'],
     };
-
     if (this.isNewBook) {
       this.bookService.addBook(newBook).subscribe(() => {
         this.router.navigate(['/']);
@@ -92,6 +102,28 @@ export class BookEditComponent {
   }
 
   onCancel(): void {
-    this.router.navigate(['/books']);
+    this.router.navigate(['/']);
+  }
+
+  addAuthorToBook(author: Author): void {
+    const authors = this.bookForm.get('authors')!.value;
+    if (!authors.find((a: Author) => a.id === author.id)) {
+      this.bookForm.get('authors')!.setValue([...authors, author]);
+      this.authorControl.patchValue('');
+    }
+  }
+
+  addNewAuthorAndSelect(fullName: string): void {
+    this.authorService.addAuthor({ fullName }).subscribe((author) => {
+      this.addAuthorToBook(author);
+    });
+  }
+
+  removeAuthorFromBook(authorToRemove: Author) {
+    const authors = this.bookForm.get('authors')!.value;
+    const updatedAuthors = authors.filter(
+      (author: Author) => author.id !== authorToRemove.id
+    );
+    this.bookForm.get('authors')!.setValue(updatedAuthors);
   }
 }
