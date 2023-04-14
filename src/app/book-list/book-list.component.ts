@@ -21,7 +21,6 @@ export class BookListComponent {
 
   loadBooks(): void {
     this.bookService.getBooks().subscribe((books: Book[]) => {
-      console.log('books', books);
       this.books = books;
       this.groupBooks();
     });
@@ -66,7 +65,7 @@ export class BookListComponent {
     this.groupBooks();
   }
 
-  deleteBook(bookId: number): void {
+  deleteBook(bookId: string): void {
     this.bookService.deleteBook(bookId).subscribe(() => {
       this.loadBooks();
     });

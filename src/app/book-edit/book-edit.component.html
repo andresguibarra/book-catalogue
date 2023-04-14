@@ -1,1 +1,35 @@
-<p>book-edit works!</p>
+<div class="container" *ngIf="bookForm">
+  <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="fill">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required maxlength="255" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Authors</mat-label>
+      <mat-select formControlName="authors" multiple required>
+        <mat-option *ngFor="let author of authors" [value]="author.id">{{ author.fullName }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Publication year</mat-label>
+      <input matInput formControlName="publicationYear" min="1800" type="number" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Rating</mat-label>
+      <input matInput formControlName="rating" min="0" max="10" type="number" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>ISBN</mat-label>
+      <input matInput formControlName="isbn" />
+    </mat-form-field>
+
+    <div class="buttons">
+      <button mat-raised-button color="primary" type="submit" [disabled]="!bookForm.valid">Save</button>
+      <button mat-raised-button color="warn" type="button" (click)="onCancel()">Cancel</button>
+    </div>
+  </form>
+</div>

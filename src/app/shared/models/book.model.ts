@@ -1,7 +1,7 @@
 import { Author } from './author.model';
 
 export interface Book {
-  id: string;
+  id?: string;
   name: string;
   authors: Author[];
   publicationYear?: number;
