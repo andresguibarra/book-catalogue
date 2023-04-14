@@ -2,7 +2,8 @@
   <mat-toolbar-row>
     <span>Books list</span>
     <span class="spacer"></span>
-    <button mat-raised-button color="accent" routerLink="/book/edit/new">Add book</button>
+    <button mat-raised-button class="add-book" color="accent" routerLink="/book/edit/new">Add book</button>
+    <button mat-raised-button color="warn" (click)="recommendBook()">Recommend a good book</button>
   </mat-toolbar-row>
 </mat-toolbar>
 

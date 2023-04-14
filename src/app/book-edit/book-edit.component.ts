@@ -55,7 +55,6 @@ export class BookEditComponent {
 
     if (!this.isNewBook) {
       this.bookService.getBook(this.bookId).subscribe((book) => {
-        console.log(book);
         this.book = book;
         bookName = book.name;
         bookAuthors = book.authors;

@@ -49,7 +49,6 @@ export class BookService {
     const relatedAuthors = authors.filter((author) =>
       book.authors.some(a => a as any === author.id)
     );
-    console.log('relatedAuthors',relatedAuthors)
     book.authors = relatedAuthors;
   }
 
@@ -64,7 +63,6 @@ export class BookService {
       this.getAuthors(),
     ]).pipe(
       map(([book, authors]) => {
-        console.log('book authors', JSON.stringify(book.authors), 'authors', authors);
         this.setRelatedAuthors(book, authors);
         return book;
       })
