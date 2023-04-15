@@ -6,12 +6,11 @@ import {
   collection,
   CollectionReference,
   doc,
-  deleteDoc,
+  deleteDoc
 } from '@angular/fire/firestore';
 import { Author } from '../models/author.model';
 import {
-  AngularFirestore,
-  DocumentReference,
+  AngularFirestore
 } from '@angular/fire/compat/firestore';
 @Injectable({
   providedIn: 'root',
@@ -26,7 +25,7 @@ export class AuthorService {
     this.authorsCollection = collection(this.firestore, 'authors');
   }
 
-  getAuthors(): Observable<Author[]> {
+  getAuthors(): Observable<(Author)[]> {
     return collectionData<Author>(this.authorsCollection, { idField: 'id' });
   }
 

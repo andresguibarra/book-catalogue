@@ -1,17 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Book } from '../shared/models/book.model';
 import { Router } from '@angular/router';
 import { BookService } from '../shared/services/book.service';
+import { Subscription, take } from 'rxjs';
 
 @Component({
   selector: 'app-book-list',
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.scss'],
 })
-export class BookListComponent {
+export class BookListComponent implements OnInit, OnDestroy {
   books: Book[] = [];
   groupedBooks: any[] = [];
   groupingCriteria: string = 'publicationYear';
+  private subscription = new Subscription();
 
   constructor(private bookService: BookService, private router: Router) {}
 
@@ -19,11 +21,17 @@ export class BookListComponent {
     this.loadBooks();
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
   loadBooks(): void {
-    this.bookService.getBooks().subscribe((books: Book[]) => {
-      this.books = books;
-      this.groupBooks();
-    });
+    this.subscription.add(
+      this.bookService.getBooks().subscribe((books: Book[]) => {
+        this.books = books;
+        this.groupBooks();
+      })
+    );
   }
 
   groupBooks(): void {
@@ -97,8 +105,11 @@ export class BookListComponent {
   }
 
   deleteBook(bookId: string): void {
-    this.bookService.deleteBook(bookId).subscribe(() => {
-      this.loadBooks();
-    });
+    this.bookService
+      .deleteBook(bookId)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.loadBooks();
+      });
   }
 }

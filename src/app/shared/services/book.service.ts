@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, combineLatest, from, map, of, switchMap } from 'rxjs';
+import { Observable, combineLatest, from, map } from 'rxjs';
 import { Book } from '../models/book.model';
 import {
   Firestore,
@@ -16,27 +16,26 @@ import {
   AngularFirestore,
   DocumentReference,
 } from '@angular/fire/compat/firestore';
+import { AuthorService } from './authors.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookService {
   booksCollection: CollectionReference<any>;
-  authorsCollection: CollectionReference<any>;
-  apiUrl: string = 'url';
 
   constructor(
     private firestore: Firestore,
-    private angularFirestore: AngularFirestore
+    private angularFirestore: AngularFirestore,
+    private authorService: AuthorService
   ) {
     this.booksCollection = collection(this.firestore, 'books');
-    this.authorsCollection = collection(this.firestore, 'authors');
   }
 
   getBooks(): Observable<Book[]> {
     return combineLatest([
       collectionData<Book>(this.booksCollection, { idField: 'id' }),
-      this.getAuthors(),
+      this.authorService.getAuthors(),
     ]).pipe(
       map(([books, authors]) => {
         books.forEach((book) => this.setRelatedAuthors(book, authors));
@@ -52,15 +51,11 @@ export class BookService {
     book.authors = relatedAuthors;
   }
 
-  getAuthors(): Observable<Author[]> {
-    return collectionData<Author>(this.authorsCollection, { idField: 'id' });
-  }
-
   getBook(id: string): Observable<Book> {
     const bookRef = doc<Book>(this.booksCollection, id);
     return combineLatest([
       docData<Book>(bookRef),
-      this.getAuthors(),
+      this.authorService.getAuthors(),
     ]).pipe(
       map(([book, authors]) => {
         this.setRelatedAuthors(book, authors);

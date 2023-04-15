@@ -11,6 +11,7 @@ import { Author } from '../shared/models/author.model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BookService } from '../shared/services/book.service';
 import { AuthorService } from '../shared/services/authors.service';
+import { Observable, iif, of, take } from 'rxjs';
 
 @Component({
   selector: 'app-book-edit',
@@ -25,7 +26,7 @@ export class BookEditComponent {
   bookId: string = '';
   authors: Author[] = [];
   authorControl = new FormControl();
-
+  authors$: Observable<Author[]> = of();
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -40,10 +41,7 @@ export class BookEditComponent {
       this.bookId = params['id'];
       this.initForm();
     });
-
-    this.bookService.getAuthors().subscribe((authors) => {
-      this.authors = authors;
-    });
+    this.authors$ = this.authorService.getAuthors();
   }
 
   private initForm(): void {
@@ -54,22 +52,25 @@ export class BookEditComponent {
     let bookIsbn;
 
     if (!this.isNewBook) {
-      this.bookService.getBook(this.bookId).subscribe((book) => {
-        this.book = book;
-        bookName = book.name;
-        bookAuthors = book.authors;
-        bookPublicationYear = book.publicationYear;
-        bookRating = book.rating;
-        bookIsbn = book.isbn;
+      this.bookService
+        .getBook(this.bookId)
+        .pipe(take(1))
+        .subscribe((book) => {
+          this.book = book;
+          bookName = book.name;
+          bookAuthors = book.authors;
+          bookPublicationYear = book.publicationYear;
+          bookRating = book.rating;
+          bookIsbn = book.isbn;
 
-        this.bookForm.patchValue({
-          name: bookName,
-          authors: bookAuthors,
-          publicationYear: bookPublicationYear,
-          rating: bookRating,
-          isbn: bookIsbn,
+          this.bookForm.patchValue({
+            name: bookName,
+            authors: bookAuthors,
+            publicationYear: bookPublicationYear,
+            rating: bookRating,
+            isbn: bookIsbn,
+          });
         });
-      });
     }
 
     this.bookForm = this.fb.group({
@@ -89,15 +90,15 @@ export class BookEditComponent {
       rating: this.bookForm.value['rating'],
       isbn: this.bookForm.value['isbn'],
     };
-    if (this.isNewBook) {
-      this.bookService.addBook(newBook).subscribe(() => {
+    iif(
+      () => this.isNewBook,
+      this.bookService.addBook(newBook),
+      this.bookService.updateBook(this.bookId, newBook)
+    )
+      .pipe(take(1))
+      .subscribe(() => {
         this.router.navigate(['/']);
       });
-    } else {
-      this.bookService.updateBook(this.bookId, newBook).subscribe(() => {
-        this.router.navigate(['/']);
-      });
-    }
   }
 
   onCancel(): void {
@@ -113,9 +114,12 @@ export class BookEditComponent {
   }
 
   addNewAuthorAndSelect(fullName: string): void {
-    this.authorService.addAuthor({ fullName }).subscribe((author) => {
-      this.addAuthorToBook(author);
-    });
+    this.authorService
+      .addAuthor({ fullName })
+      .pipe(take(1))
+      .subscribe((author) => {
+        this.addAuthorToBook(author);
+      });
   }
 
   removeAuthorFromBook(authorToRemove: Author) {

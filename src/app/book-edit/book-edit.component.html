@@ -16,7 +16,7 @@
       </mat-chip-grid>
       <input matInput [matChipInputFor]="chipGrid" [matAutocomplete]="auto" [formControl]="authorControl" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="addNewAuthorAndSelect(authorControl.value)" />
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addAuthorToBook($event.option.value)">
-        <mat-option *ngFor="let author of authors" [value]="author">
+        <mat-option *ngFor="let author of authors$ |async" [value]="author">
           {{ author.fullName }}
         </mat-option>
       </mat-autocomplete>
