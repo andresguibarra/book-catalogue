@@ -21,6 +21,9 @@
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
+    <mat-error class="author-error" *ngIf="authorControl?.touched && bookForm.get('authors')?.hasError('noAuthors')">
+      You must add at least one Author
+    </mat-error>
 
     <mat-form-field appearance="fill">
       <mat-label>Publication year</mat-label>
@@ -30,12 +33,19 @@
     <mat-form-field appearance="fill">
       <mat-label>Rating</mat-label>
       <input matInput formControlName="rating" min="0" max="10" type="number" />
+      <mat-error *ngIf="bookForm.get('rating')!.hasError('min') || bookForm.get('rating')!.hasError('max')">
+        The rating must be 0 or greater and 10 or less.
+      </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>ISBN</mat-label>
       <input matInput formControlName="isbn" />
+      <mat-error *ngIf="bookForm.get('isbn')!.hasError('invalidIsbn')">
+        The ISBN format is incorrect
+      </mat-error>
     </mat-form-field>
+
 
     <div class="buttons">
       <button mat-raised-button color="primary" type="submit" [disabled]="!bookForm.valid">Save</button>

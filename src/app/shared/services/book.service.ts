@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, combineLatest, from, map } from 'rxjs';
+import { Observable, combineLatest, from, map, tap } from 'rxjs';
 import { Book } from '../models/book.model';
 import {
   Firestore,
@@ -17,6 +17,7 @@ import {
   DocumentReference,
 } from '@angular/fire/compat/firestore';
 import { AuthorService } from './authors.service';
+import { LoadingService } from './loading.service';
 
 @Injectable({
   providedIn: 'root',
@@ -27,16 +28,20 @@ export class BookService {
   constructor(
     private firestore: Firestore,
     private angularFirestore: AngularFirestore,
-    private authorService: AuthorService
+    private authorService: AuthorService,
+    private loadingService: LoadingService
   ) {
     this.booksCollection = collection(this.firestore, 'books');
   }
 
   getBooks(): Observable<Book[]> {
+    this.loadingService.showSpinner();
+
     return combineLatest([
       collectionData<Book>(this.booksCollection, { idField: 'id' }),
       this.authorService.getAuthors(),
     ]).pipe(
+      tap(() => this.loadingService.hideSpinner()),
       map(([books, authors]) => {
         books.forEach((book) => this.setRelatedAuthors(book, authors));
         return books;
@@ -46,17 +51,19 @@ export class BookService {
 
   setRelatedAuthors(book: Book, authors: Author[]) {
     const relatedAuthors = authors.filter((author) =>
-      book.authors.some(a => a as any === author.id)
+      book.authors.some((a) => (a as any) === author.id)
     );
     book.authors = relatedAuthors;
   }
 
   getBook(id: string): Observable<Book> {
     const bookRef = doc<Book>(this.booksCollection, id);
+    this.loadingService.showSpinner();
     return combineLatest([
       docData<Book>(bookRef),
       this.authorService.getAuthors(),
     ]).pipe(
+      tap(() => this.loadingService.hideSpinner()),
       map(([book, authors]) => {
         this.setRelatedAuthors(book, authors);
         return book;
@@ -65,18 +72,27 @@ export class BookService {
   }
 
   addBook(book: Book): Observable<DocumentReference<Book>> {
-    return from(this.angularFirestore.collection<Book>('books').add(book));
+    this.loadingService.showSpinner();
+    return from(this.angularFirestore.collection<Book>('books').add(book)).pipe(
+      tap(() => this.loadingService.hideSpinner())
+    );
   }
 
   updateBook(id: string, book: Book): Observable<void> {
     const bookRef = doc<Book>(this.booksCollection, id);
+    this.loadingService.showSpinner();
 
-    return from(updateDoc(bookRef, book));
+    return from(updateDoc(bookRef, book)).pipe(
+      tap(() => this.loadingService.hideSpinner())
+    );
   }
 
   deleteBook(id: string): Observable<void> {
     const bookRef = doc<Book>(this.booksCollection, id);
+    this.loadingService.showSpinner();
 
-    return from(deleteDoc(bookRef));
+    return from(deleteDoc(bookRef)).pipe(
+      tap(() => this.loadingService.hideSpinner())
+    );
   }
 }

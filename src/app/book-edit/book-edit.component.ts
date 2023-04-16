@@ -11,7 +11,9 @@ import { Author } from '../shared/models/author.model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BookService } from '../shared/services/book.service';
 import { AuthorService } from '../shared/services/authors.service';
+import { isbnValidator } from '../shared/validators/isbn.validator';
 import { Observable, iif, of, take } from 'rxjs';
+import { atLeastOneAuthor } from '../shared/validators/author.validator';
 
 @Component({
   selector: 'app-book-edit',
@@ -75,10 +77,10 @@ export class BookEditComponent {
 
     this.bookForm = this.fb.group({
       name: [bookName, [Validators.required, Validators.maxLength(255)]],
-      authors: [bookAuthors, [Validators.required]],
+      authors: [bookAuthors, [atLeastOneAuthor()]],
       publicationYear: [bookPublicationYear, Validators.min(1800)],
       rating: [bookRating, [Validators.min(0), Validators.max(10)]],
-      isbn: [bookIsbn],
+      isbn: [bookIsbn, isbnValidator],
     });
   }
 

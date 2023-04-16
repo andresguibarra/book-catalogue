@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, map, switchMap } from 'rxjs';
+import { Observable, from, map, switchMap, tap } from 'rxjs';
 import {
   Firestore,
   collectionData,
@@ -12,6 +12,7 @@ import { Author } from '../models/author.model';
 import {
   AngularFirestore
 } from '@angular/fire/compat/firestore';
+import { LoadingService } from './loading.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -20,7 +21,8 @@ export class AuthorService {
 
   constructor(
     private firestore: Firestore,
-    private angularFirestore: AngularFirestore
+    private angularFirestore: AngularFirestore,
+    private loadingService: LoadingService
   ) {
     this.authorsCollection = collection(this.firestore, 'authors');
   }
@@ -30,12 +32,14 @@ export class AuthorService {
   }
 
   addAuthor(author: Author): Observable<Author> {
+    this.loadingService.showSpinner();
     return from(
       this.angularFirestore.collection<Author>('authors').add(author)
     ).pipe(
       switchMap((authorRef) => {
         return authorRef.get();
       }),
+      tap(() => this.loadingService.hideSpinner()),
       map((doc) => {
         return {
           id: doc.id,
@@ -48,7 +52,10 @@ export class AuthorService {
 
   deleteAuthor(id: string): Observable<void> {
     const authorRef = doc<Author>(this.authorsCollection, id);
+    this.loadingService.showSpinner();
 
-    return from(deleteDoc(authorRef));
+    return from(deleteDoc(authorRef)).pipe(
+      tap(() => this.loadingService.hideSpinner()),
+    );
   }
 }
