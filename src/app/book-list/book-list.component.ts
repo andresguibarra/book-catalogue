@@ -47,7 +47,7 @@ export class BookListComponent implements OnInit, OnDestroy {
             : 'Missing publication year';
           break;
         case 'rating':
-          key = book.rating ? book.rating.toString() : 'No rating';
+          key = book.rating ? book.rating.toString() : 'No rated';
           break;
         case 'authors':
           key = book.authors.map((author) => author.fullName).join(', ');
